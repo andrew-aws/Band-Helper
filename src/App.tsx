@@ -43,12 +43,26 @@ export default function App() {
     URL.revokeObjectURL(a.href)
   }
 
+  const isEmpty = data.members.length === 0 && data.songs.length === 0
+
+  function resetData() {
+    const ok = confirm(
+      'Start fresh?\n\nThis deletes all songs, members, lineups and the setlist from this browser. ' +
+        'Use Export first if you want to keep them.',
+    )
+    if (!ok) return
+    actions.reset()
+    setAbsentIds([])
+    setTab('songs')
+  }
+
   async function importData(file: File) {
     try {
       const parsed: unknown = JSON.parse(await file.text())
       if (!isBandData(parsed)) throw new Error('Not a band data file')
       if (confirm('Replace all current songs, members and setlist with this file?')) {
         actions.replaceAll(parsed)
+        setAbsentIds([])
       }
     } catch (err) {
       alert(`Couldn't import: ${(err as Error).message}`)
@@ -60,8 +74,9 @@ export default function App() {
       <header className="app-header no-print">
         <h1>Band Helper</h1>
         <div className="row">
-          <button onClick={exportData}>Export</button>
+          <button onClick={exportData} disabled={isEmpty}>Export</button>
           <button onClick={() => fileInput.current?.click()}>Import</button>
+          <button className="danger" onClick={resetData} disabled={isEmpty}>Reset</button>
           <input
             ref={fileInput}
             type="file"

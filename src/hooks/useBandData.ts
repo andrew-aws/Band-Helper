@@ -105,6 +105,9 @@ export function useBandData() {
       replaceAll(next: BandData) {
         setData(next)
       },
+      reset() {
+        setData(EMPTY)
+      },
     }
   }, [setData])
 
